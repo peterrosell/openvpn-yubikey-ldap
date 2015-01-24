@@ -21,6 +21,7 @@ dev tun
 remote-cert-tls server
 comp-lzo
 mute 20
+float
 
 <key>
 $(cat $EASYRSA_PKI/private/${cn}.key)

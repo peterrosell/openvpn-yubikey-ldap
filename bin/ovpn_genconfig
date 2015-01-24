@@ -156,6 +156,7 @@ persist-key
 persist-tun
 comp-lzo
 mute 20
+float
 
 proto $OVPN_PROTO
 # Rely on Docker to do port mapping, internally always 1194
