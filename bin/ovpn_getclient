@@ -20,6 +20,7 @@ nobind
 dev tun
 remote-cert-tls server
 comp-lzo
+mute 20
 
 <key>
 $(cat $EASYRSA_PKI/private/${cn}.key)
