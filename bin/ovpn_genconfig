@@ -154,6 +154,7 @@ key-direction 0
 keepalive 10 60
 persist-key
 persist-tun
+comp-lzo
 
 proto $OVPN_PROTO
 # Rely on Docker to do port mapping, internally always 1194

@@ -19,6 +19,7 @@ client
 nobind
 dev tun
 remote-cert-tls server
+comp-lzo
 
 <key>
 $(cat $EASYRSA_PKI/private/${cn}.key)
