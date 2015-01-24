@@ -38,6 +38,10 @@ $(cat $EASYRSA_PKI/ta.key)
 key-direction 1
 
 remote $OVPN_CN $OVPN_PORT $OVPN_PROTO
+
+#be friendly to windows clients
+route-delay 2
+
 EOF
 
 if [ "$OVPN_DEFROUTE" != "0" ];then
