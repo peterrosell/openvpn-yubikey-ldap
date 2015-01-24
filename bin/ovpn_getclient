@@ -22,6 +22,7 @@ remote-cert-tls server
 comp-lzo
 mute 20
 float
+resolv-retry infinite
 
 <key>
 $(cat $EASYRSA_PKI/private/${cn}.key)
