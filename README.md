@@ -2,41 +2,43 @@
 
 OpenVPN server in a Docker container complete with an EasyRSA PKI CA.
 
-Extensively tested on [Digital Ocean $5/mo node](http://bit.ly/1It5g4o).
+Based on [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn) but with certificate revocation functionality.
 
 ## Quick Start
 
-* Create the `$OVPN_DATA` volume container, i.e. `OVPN_DATA="ovpn-data"`
+* Create the `$OVPN_DATA` volume container, i.e. `OVPN_DATA="openvpn_data"`
 
         docker run --name $OVPN_DATA -v /etc/openvpn busybox
 
 * Initialize the `$OVPN_DATA` container that will hold the configuration files and certificates
 
-        docker run --volumes-from $OVPN_DATA --rm kylemanna/openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM
-        docker run --volumes-from $OVPN_DATA --rm -it kylemanna/openvpn ovpn_initpki
+        docker run --volumes-from $OVPN_DATA --rm martin/openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM
+        docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn ovpn_initpki
 
 * Start OpenVPN server process
 
-    - On Docker [version 1.2](http://blog.docker.com/2014/08/announcing-docker-1-2-0/) and newer
-
-            docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --cap-add=NET_ADMIN kylemanna/openvpn
-
-    - On Docker older than version 1.2
-
-            docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --privileged kylemanna/openvpn
+        docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn
 
 * Generate a client certificate without a passphrase
 
-        docker run --volumes-from $OVPN_DATA --rm -it kylemanna/openvpn easyrsa build-client-full CLIENTNAME nopass
+        docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn easyrsa build-client-full CLIENTNAME
+
+    - Or without a passphrase (only do this for testing purposes)
+
+            docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn easyrsa build-client-full CLIENTNAME nopass
 
 * Retrieve the client configuration with embedded certificates
 
-        docker run --volumes-from $OVPN_DATA --rm kylemanna/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
+        docker run --volumes-from $OVPN_DATA --rm martin/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
+
+* If you need to remove access for a client then you can revoke the client certificate by running
+
+        docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn ovpn_revokeclient CLIENTNAME
 
 
 ## How Does It Work?
 
-Initialize the volume container using the `kylemanna/openvpn` image with the
+Initialize the volume container using the `martin/openvpn` image with the
 included scripts to automatically generate:
 
 - Diffie-Hellman parameters
@@ -52,11 +54,11 @@ declares that directory as a volume. It means that you can start another
 container with the `--volumes-from` flag, and access the configuration.
 The volume also holds the PKI keys and certs so that it could be backed up.
 
-To generate a client certificate, `kylemanna/openvpn` uses EasyRSA via the
+To generate a client certificate, `martin/openvpn` uses EasyRSA via the
 `easyrsa` command in the container's path.  The `EASYRSA_*` environmental
-variables place the PKI CA under `/etc/opevpn/pki`.
+variables place the PKI CA under `/etc/openvpn/pki`.
 
-Conveniently, `kylemanna/openvpn` comes with a script called `ovpn_getclient`,
+Conveniently, `martin/openvpn` comes with a script called `ovpn_getclient`,
 which dumps an inline OpenVPN client configuration file.  This single file can
 then be given to a client for access to the VPN.
 
@@ -108,6 +110,13 @@ packets, etc).
   security should prevent any malicious host from using the VPN.
 
 
+## Differences from kylemanna/openvpn
+
+* Revocation list enabled to allow certificates to be revoked.
+* Tweaks for Windows clients
+* Compression enabled and set to adaptive
+* Floating client ip's enabled
+
 ## Differences from jpetazzo/dockvpn
 
 * No longer uses serveconfig to distribute the configuration via https
@@ -118,10 +127,6 @@ packets, etc).
 
 ## Tested On
 
-* Docker hosts:
-  * server a [Digital Ocean](https://www.digitalocean.com/?refcode=d19f7fe88c94) Droplet with 512 MB RAM running Ubuntu 14.04
 * Clients
   * Android App OpenVPN Connect 1.1.14 (built 56)
-     * OpenVPN core 3.0 android armv7a thumb2 32-bit
-  * OS X Mavericks with Tunnelblick 3.4beta26 (build 3828) using openvpn-2.3.4
-  * ArchLinux OpenVPN pkg 2.3.4-1
+  * Windows 8.1 64 bit using openvpn-2.3.6
