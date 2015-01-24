@@ -28,4 +28,4 @@ WORKDIR /etc/openvpn
 CMD ["ovpn_run"]
 
 ADD ./bin /usr/local/bin
-RUN chmod a+x /usr/local/bin/*
+RUN chmod 774 /usr/local/bin/*
