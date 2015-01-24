@@ -34,3 +34,8 @@ openvpn --genkey --secret $OPENVPN/pki/ta.key
 
 # For a server key with a password, manually init; this is autopilot
 easyrsa build-server-full "$OVPN_CN" nopass
+
+# Init Certificate Revocation List
+easyrsa gen-crl
+# copy crl to $OPENVPN where user nobody can read it
+cp $OPENVPN/pki/crl.pem $OPENVPN/crl.pem && chmod 644 $OPENVPN/crl.pem
