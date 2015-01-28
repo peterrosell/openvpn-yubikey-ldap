@@ -1,12 +1,12 @@
 # OpenVPN for Docker
 
-OpenVPN server in a Docker container complete with an EasyRSA PKI CA.
+Secure OpenVPN server in a Docker container complete with an EasyRSA PKI CA.
 
-Based on [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn) but with certificate revocation functionality.
+Based on [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn) but with certificate revocation functionality and generally much higher security level.
 
 ## Quick Start
 
-* Create the `$OVPN_DATA` volume container, i.e. `OVPN_DATA="openvpn_data"`
+* Create the `$OVPN_DATA` volume container, i.e. `export OVPN_DATA=openvpn_data`
 
         docker run --name $OVPN_DATA -v /etc/openvpn busybox
 
@@ -19,7 +19,7 @@ Based on [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn)
 
         docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn
 
-* Generate a client certificate without a passphrase
+* Generate a client certificate
 
         docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn easyrsa build-client-full CLIENTNAME
 
@@ -113,6 +113,8 @@ packets, etc).
 ## Differences from kylemanna/openvpn
 
 * Revocation list enabled to allow certificates to be revoked.
+* TLS 1.2
+* Stronger ciphers and encryption
 * Tweaks for Windows clients
 * Compression enabled and set to adaptive
 * Floating client ip's enabled
