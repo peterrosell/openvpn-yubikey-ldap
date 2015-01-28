@@ -160,6 +160,8 @@ float
 remote-cert-eku "TLS Web Client Authentication"
 cipher AES-256-CBC
 auth SHA256
+tls-cipher TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
+tls-version-min 1.2
 
 proto $OVPN_PROTO
 # Rely on Docker to do port mapping, internally always 1194

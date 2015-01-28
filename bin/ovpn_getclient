@@ -27,6 +27,8 @@ remote-cert-eku "TLS Web Server Authentication"
 persist-tun
 cipher AES-256-CBC
 auth SHA256
+tls-cipher TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
+tls-version-min 1.2
 
 <key>
 $(cat $EASYRSA_PKI/private/${cn}.key)
