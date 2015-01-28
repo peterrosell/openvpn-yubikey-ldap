@@ -25,6 +25,7 @@ float
 resolv-retry infinite
 remote-cert-eku "TLS Web Server Authentication"
 persist-tun
+cipher AES-256-CBC
 
 <key>
 $(cat $EASYRSA_PKI/private/${cn}.key)

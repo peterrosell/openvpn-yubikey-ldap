@@ -158,6 +158,7 @@ comp-lzo
 mute 20
 float
 remote-cert-eku "TLS Web Client Authentication"
+cipher AES-256-CBC
 
 proto $OVPN_PROTO
 # Rely on Docker to do port mapping, internally always 1194
