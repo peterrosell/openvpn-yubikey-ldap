@@ -157,6 +157,7 @@ persist-tun
 comp-lzo
 mute 20
 float
+remote-cert-eku "TLS Web Client Authentication"
 
 proto $OVPN_PROTO
 # Rely on Docker to do port mapping, internally always 1194

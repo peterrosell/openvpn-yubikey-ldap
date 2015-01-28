@@ -23,6 +23,7 @@ comp-lzo
 mute 20
 float
 resolv-retry infinite
+remote-cert-eku "TLS Web Server Authentication"
 
 <key>
 $(cat $EASYRSA_PKI/private/${cn}.key)
