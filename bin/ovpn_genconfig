@@ -171,6 +171,12 @@ status /tmp/openvpn-status.log
 
 client-config-dir $OPENVPN/ccd
 
+# Performance tweaks
+txqueuelen 200
+sndbuf 393216
+rcvbuf 393216
+fast-io
+
 user nobody
 group nogroup
 EOF
