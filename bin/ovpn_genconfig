@@ -43,7 +43,7 @@ usage() {
     echo " -c    Enable client-to-client option"
     echo " -D    Disable built in external dns (google dns)"
     echo " -N    Configure NAT to access external server network"
-    echo " -m    Set client MTU"
+    echo " -m    Set tun-mtu"
 }
 
 set -ex
@@ -175,6 +175,8 @@ user nobody
 group nogroup
 EOF
 
+
+[ -n "$OVPN_MTU" ] && echo "tun-mtu $OVPN_MTU" >> "$conf"
 [ -n "$OVPN_CLIENT_TO_CLIENT" ] && echo "client-to-client" >> "$conf"
 [ "$OVPN_DNS" == "1" ] && echo push "dhcp-option DNS 8.8.4.4" >> "$conf"
 [ "$OVPN_DNS" == "1" ] && echo push "dhcp-option DNS 8.8.8.8" >> "$conf"
