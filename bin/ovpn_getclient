@@ -4,9 +4,41 @@
 # Get an OpenVPN client configuration file
 #
 
+
+usage() {
+    echo "usage: $0 [-M] clientname"
+    echo "                 [-M MSSFIX_VALUE]"
+    echo
+    echo "optional arguments:"
+    echo " -M    Set mssfix value"
+}
+
 set -ex
 
 source "$OPENVPN/ovpn_env.sh"
+
+# Parse arguments
+while getopts ":M:" opt; do
+    case $opt in
+        M)
+            OVPN_MSSFIX=$OPTARG
+            ;;
+        \?)
+            set +x
+            echo "Invalid option: -$OPTARG" >&2
+            usage
+            exit 1
+            ;;
+        :)
+            set +x
+            echo "Option -$OPTARG requires an argument." >&2
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND - 1))
+
 cn=$1
 
 if [ ! -f "$EASYRSA_PKI/private/${cn}.key" ]; then
@@ -57,3 +89,5 @@ if [ "$OVPN_DEFROUTE" != "0" ];then
 fi
 
 [ -n "$OVPN_MTU" ] && echo "tun-mtu $OVPN_MTU"
+
+[ -n "$OVPN_MSSFIX" ] && echo "mssfix $OVPN_MSSFIX"
