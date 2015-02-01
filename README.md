@@ -31,6 +31,10 @@ Based on [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn)
 
         docker run --volumes-from $OVPN_DATA --rm martin/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
 
+	- Or retrieve the client configuration with mssfix set to a lower value (yay Ziggo WifiSpots)
+
+        docker run --volumes-from $OVPN_DATA --rm martin/openvpn ovpn_getclient -M 1312 CLIENTNAME > CLIENTNAME.ovpn
+		
 * If you need to remove access for a client then you can revoke the client certificate by running
 
         docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn ovpn_revokeclient CLIENTNAME
@@ -118,6 +122,7 @@ packets, etc).
 * Tweaks for Windows clients
 * Compression enabled and set to adaptive
 * Floating client ip's enabled
+* Optionally set mssfix in the client profile
 
 ## Differences from jpetazzo/dockvpn
 
