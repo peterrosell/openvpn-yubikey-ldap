@@ -17,7 +17,7 @@ Based on [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn)
 
 * Start OpenVPN server process
 
-        docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn
+        docker run --volumes-from $OVPN_DATA -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn
 
 * Generate a client certificate
 
