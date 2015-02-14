@@ -66,7 +66,8 @@ Setup a secure OpenVPN server without effort using Docker.
 ## Tested On
 
 * Clients
-  * Android App OpenVPN Connect 1.1.14 (built 56)
+  * Android, OpenVPN Connect 1.1.14 (built 56)
+  * Android, OpenVPN for Android 0.6.26
   * Windows 8.1 64 bit using openvpn-2.3.6
 
 
