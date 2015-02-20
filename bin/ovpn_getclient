@@ -88,6 +88,11 @@ if [ "$OVPN_DEFROUTE" != "0" ];then
     echo "redirect-gateway def1"
 fi
 
-[ -n "$OVPN_MTU" ] && echo "tun-mtu $OVPN_MTU"
+if [ -n "$OVPN_MTU" ]; then
+    echo "tun-mtu $OVPN_MTU"
+fi
 
-[ -n "$OVPN_MSSFIX" ] && echo "mssfix $OVPN_MSSFIX"
+if [ -n "$OVPN_MSSFIX" ]; then
+    echo "mssfix $OVPN_MSSFIX"
+fi
+
