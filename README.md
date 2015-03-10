@@ -4,8 +4,9 @@ Setup a secure OpenVPN server without effort using Docker.
 
 ## Quick Start
 
-1. Create the `$OVPN_DATA` volume container, i.e. `export OVPN_DATA=openvpn_data`
+1. Create the `$OVPN_DATA` volume container 
 
+        export OVPN_DATA=openvpn_data
         docker run --name $OVPN_DATA -v /etc/openvpn busybox
 
 2. Initialize the `$OVPN_DATA` container that will hold the configuration files and certificates
@@ -37,6 +38,9 @@ Setup a secure OpenVPN server without effort using Docker.
 
         docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn ovpn_revokeclient CLIENTNAME
 
+* To enable (bash) debug output set an environment variable with the name DEBUG and value of 1 (using "docker -e")
+        for example `docker run -e DEBUG=1 --volumes-from $OVPN_DATA -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn`
+		
 
 ## Settings and featurs
 * OpenVPN 2.3.6
