@@ -6,7 +6,7 @@ FROM debian:jessie
 MAINTAINER Martin van Beurden <chadoe@gmail.com>
 
 RUN apt-get update && apt-get install -y wget && \
-    wget -O - https://swupdate.openvpn.net/repos/repo-public.gpg|apt-key add - && \
+    wget -O - --no-check-certificate https://swupdate.openvpn.net/repos/repo-public.gpg|apt-key add - && \
     echo "deb http://swupdate.openvpn.net/apt wheezy main" > /etc/apt/sources.list.d/swupdate.openvpn.net.list && \
     apt-get update && \
     apt-get install --no-install-recommends -y ca-certificates openvpn iptables git-core && \
