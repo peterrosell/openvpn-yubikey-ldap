@@ -16,7 +16,7 @@ Setup a secure OpenVPN server without effort using Docker.
 
 3. Start OpenVPN server process
 
-        docker run --volumes-from $OVPN_DATA -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn
+        docker run --name openvpn --volumes-from $OVPN_DATA -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn
 
 4. Generate a client certificate
 
@@ -39,10 +39,11 @@ Setup a secure OpenVPN server without effort using Docker.
         docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn ovpn_revokeclient CLIENTNAME
 
 * To enable (bash) debug output set an environment variable with the name DEBUG and value of 1 (using "docker -e")
-        for example `docker run -e DEBUG=1 --volumes-from $OVPN_DATA -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn`
-		
+        for example `docker run -e DEBUG=1 --name openvpn --volumes-from $OVPN_DATA -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn`
 
-## Settings and featurs
+* To view the log output run `docker logs openvpn`, to view it realtime run `docker logs -f openvpn`
+
+## Settings and features
 * OpenVPN 2.3.6
 * Easy-RSA v3.0.0-rc2 with utf-8 patch
 * `tun` mode because it works on the widest range of devices. `tap` mode, for instance, does not work on Android, except if the device is rooted.
