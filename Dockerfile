@@ -39,7 +39,7 @@ VOLUME ["/etc/openvpn"]
 EXPOSE 1194/udp
 
 WORKDIR /etc/openvpn
-CMD ["ovpn_run"]
+CMD ["start_openvpn"]
 
 ADD ./bin /usr/local/bin
 RUN chmod 774 /usr/local/bin/*

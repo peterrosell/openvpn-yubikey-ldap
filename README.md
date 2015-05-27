@@ -11,8 +11,8 @@ Setup a secure OpenVPN server without effort using Docker.
 
 2. Initialize the `$OVPN_DATA` container that will hold the configuration files and certificates
 
-        docker run --volumes-from $OVPN_DATA --rm martin/openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM
-        docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn ovpn_initpki
+        docker run --volumes-from $OVPN_DATA --rm martin/openvpn genconfig -u udp://VPN.SERVERNAME.COM
+        docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn initpki
 
 3. Start OpenVPN server process
 
@@ -28,15 +28,15 @@ Setup a secure OpenVPN server without effort using Docker.
 
 5. Retrieve the client configuration with embedded certificates
 
-        docker run --volumes-from $OVPN_DATA --rm martin/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
+        docker run --volumes-from $OVPN_DATA --rm martin/openvpn getclient CLIENTNAME > CLIENTNAME.ovpn
 
     - Or retrieve the client configuration with mssfix set to a lower value (yay Ziggo WifiSpots)
 
-            docker run --volumes-from $OVPN_DATA --rm martin/openvpn ovpn_getclient -M 1312 CLIENTNAME > CLIENTNAME.ovpn
+            docker run --volumes-from $OVPN_DATA --rm martin/openvpn getclient -M 1312 CLIENTNAME > CLIENTNAME.ovpn
 		
 * If you need to remove access for a client then you can revoke the client certificate by running
 
-        docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn ovpn_revokeclient CLIENTNAME
+        docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn revokeclient CLIENTNAME
 
 * To enable (bash) debug output set an environment variable with the name DEBUG and value of 1 (using "docker -e")
         for example `docker run -e DEBUG=1 --name openvpn --volumes-from $OVPN_DATA -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn`
