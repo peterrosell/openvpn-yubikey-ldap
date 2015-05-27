@@ -3,6 +3,7 @@
 #
 # Revoke an OpenVPN client certificate
 #
+# author: Martin van Beurden <chadoe@gmail.com>
 
 set -ex
 
