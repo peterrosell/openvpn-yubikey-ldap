@@ -11,7 +11,7 @@ Setup a tiny(10MB), but full featured and secure OpenVPN server without effort u
 
 2. Initialize the `$OVPN_DATA` container that will hold the configuration files and certificates
 
-        docker run --volumes-from $OVPN_DATA --rm martin/openvpn genconfig -u udp://VPN.SERVERNAME.COM
+        docker run --volumes-from $OVPN_DATA --rm martin/openvpn initopenvpn -u udp://VPN.SERVERNAME.COM
         docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn initpki
 
 3. Start OpenVPN server process

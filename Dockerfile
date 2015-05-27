@@ -32,5 +32,5 @@ VOLUME ["/etc/openvpn"]
 EXPOSE 1194/udp
 
 WORKDIR /etc/openvpn
-CMD ["start_openvpn"]
+CMD ["startopenvpn"]
 
