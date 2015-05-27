@@ -1,6 +1,6 @@
 # OpenVPN for Docker
 
-Setup a secure OpenVPN server without effort using Docker.
+Setup a tiny(10MB), but full featured and secure OpenVPN server without effort using Docker.
 
 ## Quick Start
 
