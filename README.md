@@ -44,7 +44,7 @@ Setup a tiny(10MB), but full featured and secure OpenVPN server without effort u
 * To view the log output run `docker logs openvpn`, to view it realtime run `docker logs -f openvpn`
 
 ## Settings and features
-* OpenVPN 2.3.6
+* OpenVPN 2.3.7
 * Easy-RSA v3.0.0-rc2 with utf-8 patch
 * `tun` mode because it works on the widest range of devices. `tap` mode, for instance, does not work on Android, except if the device is rooted.
 * The UDP server uses`192.168.255.0/24` for clients.
