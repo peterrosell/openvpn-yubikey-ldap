@@ -24,8 +24,8 @@ RUN apk add --update-cache bash openvpn=2.3.7-r0 git openssl && \
 # Needed by scripts
 ENV OPENVPN=/etc/openvpn \
     EASYRSA=/usr/local/share/easy-rsa/easyrsa3 \
-    EASYRSA_PKI=$OPENVPN/pki \
-    EASYRSA_VARS_FILE=$OPENVPN/vars
+    EASYRSA_PKI=/etc/openvpn/pki \
+    EASYRSA_VARS_FILE=/etc/openvpn/vars
 
 VOLUME ["/etc/openvpn"]
 
