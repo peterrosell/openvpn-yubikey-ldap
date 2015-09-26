@@ -1,10 +1,10 @@
-FROM alpine:3.2
+FROM alpine:edge
 
 MAINTAINER Martin van Beurden <chadoe@gmail.com>
 
 ADD ./bin /usr/local/bin
 
-RUN apk add --update-cache bash openvpn=2.3.7-r0 git openssl && \
+RUN apk add --update-cache bash openvpn=2.3.8-r0 git openssl && \
     rm -rf /var/cache/apk/* /tmp/* && \
 # Get easy-rsa
     git clone --branch v3.0.0-rc2 https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
