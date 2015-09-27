@@ -45,7 +45,7 @@ Setup a tiny(12MB), but full featured and secure OpenVPN server without effort u
 
 ## Settings and features
 * OpenVPN 2.3.8
-* Easy-RSA v3.0.0-rc2 with utf-8 patch
+* Easy-RSA v3.0.0
 * `tun` mode because it works on the widest range of devices. `tap` mode, for instance, does not work on Android, except if the device is rooted.
 * The UDP server uses`192.168.255.0/24` for clients.
 * TLS 1.2 minimum

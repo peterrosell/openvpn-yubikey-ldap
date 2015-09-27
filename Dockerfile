@@ -7,13 +7,7 @@ ADD ./bin /usr/local/bin
 RUN apk add --update-cache bash openvpn=2.3.8-r0 git openssl && \
     rm -rf /var/cache/apk/* /tmp/* && \
 # Get easy-rsa
-    git clone --branch v3.0.0-rc2 https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
-# Merge utf-8 patch
-    cd /tmp/easy-rsa && \
-    git checkout -b roubert-utf-8 v3.0.0-rc2 && \
-    git -c user.email='dummy@email.none' pull https://github.com/roubert/easy-rsa.git && \
-    git checkout v3.0.0-rc2 && \
-    git -c user.email='dummy@email.none' merge --no-ff roubert-utf-8 && \
+    git clone --branch v3.0.0 https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
 # Cleanup
     apk del git && \
     rm -rf /tmp/easy-rsa/.git && cp -a /tmp/easy-rsa /usr/local/share/ && \
