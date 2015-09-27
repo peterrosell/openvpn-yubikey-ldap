@@ -154,6 +154,7 @@ fi
 
 cat > "$conf" <<EOF
 server $(getroute $OVPN_SERVER)
+tls-server
 verb 3
 crl-verify $OPENVPN/crl.pem
 key $EASYRSA_PKI/private/${OVPN_CN}.key
@@ -169,6 +170,7 @@ comp-lzo
 mute 20
 float
 remote-cert-eku "TLS Web Client Authentication"
+remote-cert-ku 80 08 88
 cipher AES-256-CBC
 auth SHA256
 tls-cipher TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
