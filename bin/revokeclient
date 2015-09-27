@@ -5,7 +5,11 @@
 #
 # author: Martin van Beurden <chadoe@gmail.com>
 
-set -ex
+if [ "$DEBUG" == "1" ]; then
+  set -x
+fi
+
+set -e
 
 source "$OPENVPN/ovpn_env.sh"
 cn=$1
