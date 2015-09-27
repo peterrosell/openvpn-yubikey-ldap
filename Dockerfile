@@ -7,7 +7,11 @@ ADD ./bin /usr/local/bin
 RUN apk add --update-cache bash openvpn=2.3.8-r0 git openssl && \
     rm -rf /var/cache/apk/* /tmp/* && \
 # Get easy-rsa
-    git clone --branch v3.0.0 https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
+    git clone https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
+# Reset to v3.0.0 + 1 additional commit "Use tmp file for gen-crl output"
+    cd /tmp/easy-rsa && \
+    git reset --hard 21ac0a76bc090059543486660eaef6409667737b && \
+    cd && \
 # Cleanup
     apk del git && \
     rm -rf /tmp/easy-rsa/.git && cp -a /tmp/easy-rsa /usr/local/share/ && \
