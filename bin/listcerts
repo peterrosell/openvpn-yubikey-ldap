@@ -1,0 +1,4 @@
+#! /bin/bash
+
+cat $OPENVPN/pki/index.txt
+ 

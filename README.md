@@ -33,10 +33,16 @@ Setup a tiny(12MB), but full featured and secure OpenVPN server without effort u
     - Or retrieve the client configuration with mssfix set to a lower value (yay Ziggo WifiSpots)
 
             docker run --volumes-from $OVPN_DATA --rm martin/openvpn getclient -M 1312 CLIENTNAME > CLIENTNAME.ovpn
+
+6. Revoke a client certificate
 		
-* If you need to remove access for a client then you can revoke the client certificate by running
+    If you need to remove access for a client then you can revoke the client certificate by running
 
         docker run --volumes-from $OVPN_DATA --rm -it martin/openvpn revokeclient CLIENTNAME
+
+7. List all generated certificate names (includes the server certificate name)
+
+        docker run --volumes-from $OVPN_DATA --rm martin/openvpn listcerts
 
 * To enable (bash) debug output set an environment variable with the name DEBUG and value of 1 (using "docker -e")
         for example `docker run -e DEBUG=1 --name openvpn --volumes-from $OVPN_DATA -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn`
