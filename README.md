@@ -1,5 +1,12 @@
 # OpenVPN for Docker
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/chadoe/docker-openvpn/master/LICENSE)
+[![Docker Pulls](https://img.shields.io/docker/pulls/martin/openvpn.svg)](https://hub.docker.com/r/martin/openvpn/)
+[![ImageLayers Size](https://img.shields.io/imagelayers/image-size/martin/openvpn/latest.svg)](https://hub.docker.com/r/martin/openvpn/)
+[![ImageLayers Layers](https://img.shields.io/imagelayers/layers/martin/openvpn/latest.svg)](https://hub.docker.com/r/martin/openvpn/)
+[![Docker Stars](https://img.shields.io/docker/stars/martin/openvpn.svg)](https://hub.docker.com/r/martin/openvpn/)
+
+
 Setup a tiny(12MB), but full featured and secure OpenVPN server without effort using Docker.
 
 ## Quick Start
