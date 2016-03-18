@@ -2,10 +2,9 @@ FROM alpine:edge
 
 MAINTAINER Martin van Beurden <chadoe@gmail.com>
 
-ADD ./bin /usr/local/bin
+COPY ./bin /usr/local/bin
 
-RUN apk add --update-cache bash openvpn=2.3.10-r1 git openssl && \
-    rm -rf /var/cache/apk/* /tmp/* && \
+RUN apk add --no-cache bash openvpn=2.3.10-r1 git openssl && \
 # Get easy-rsa
     git clone https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
 # Reset to v3.0.0 + 1 additional commit "Use tmp file for gen-crl output"
