@@ -85,8 +85,8 @@ Setup a tiny(12MB), but full featured and secure OpenVPN server without effort u
 
 * Clients
   * Android, OpenVPN Connect 1.1.14 (built 56)
-  * Android, OpenVPN for Android 0.6.26
-  * Windows 8.1 64 bit using openvpn-2.3.6
+  * Android, OpenVPN for Android 0.6.50
+  * Windows 10 64 bit using openvpn-2.3.10
 
 
 Based on [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn).
