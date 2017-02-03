@@ -4,12 +4,9 @@ MAINTAINER Martin van Beurden <chadoe@gmail.com>
 
 COPY ./bin /usr/local/bin
 
-RUN apk add --no-cache bash openvpn=2.3.12-r0 git openssl && \
+RUN apk add --no-cache bash openvpn=2.4.0-r0 git openssl && \
 # Get easy-rsa
     git clone https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
-# Reset to v3.0.0 + 1 additional commit "Use tmp file for gen-crl output"
-    cd /tmp/easy-rsa && \
-    git reset --hard 21ac0a76bc090059543486660eaef6409667737b && \
     cd && \
 # Cleanup
     apk del git && \
