@@ -51,7 +51,7 @@ Setup a tiny(12MB), but full featured and secure OpenVPN server without effort u
 
 8. Renew the CRL
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm martin/openvpn renewcrl
+        docker run -v $OVPN_DATA:/etc/openvpn --rm -it martin/openvpn renewcrl
 
 * To enable (bash) debug output set an environment variable with the name DEBUG and value of 1 (using "docker -e")
         for example `docker run -e DEBUG=1 --name openvpn -v $OVPN_DATA:/etc/openvpn -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn`
