@@ -190,6 +190,12 @@ sndbuf 393216
 rcvbuf 393216
 fast-io
 
+# Enable PAM for user authentication
+plugin /usr/lib/openvpn/plugins/openvpn-plugin-auth-pam.so openvpn
+# disable renegotiation, otherwise user need to relogin now and then
+#    and it works bad with one-time password 
+reneg-sec 0
+
 user nobody
 group nogroup
 EOF

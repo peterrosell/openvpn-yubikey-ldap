@@ -1,10 +1,22 @@
-FROM alpine:edge
+FROM alpine:3.7 as pam_radius
 
-MAINTAINER Martin van Beurden <chadoe@gmail.com>
+RUN apk add --no-cache build-base git linux-pam-dev
 
-COPY ./bin /usr/local/bin
+RUN git clone https://github.com/FreeRADIUS/pam_radius && \
+        cd /pam_radius && \
+        ./configure && \
+        make
 
-RUN apk add --no-cache bash openvpn=2.4.5-r0 git openssl && \
+
+FROM alpine:3.7
+
+LABEL maintainer "Peter Rosell <peter.rosell@gmail.com>"
+
+ADD bin /usr/local/bin
+
+COPY --from=pam_radius /pam_radius/pam_radius_auth.so /lib/security/
+
+RUN apk add --no-cache bash openvpn git openssl openvpn-auth-pam freeradius-pam && \
 # Get easy-rsa
     git clone https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
     cd && \
@@ -28,3 +40,4 @@ EXPOSE 1194/udp
 WORKDIR /etc/openvpn
 CMD ["startopenvpn"]
 
+ADD package /
