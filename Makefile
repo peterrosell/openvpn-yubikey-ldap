@@ -28,6 +28,9 @@ logs-bash:
 stop:
 	docker stop alpine-openvpn
 
+pam-logs:
+	docker exec -i -t alpine-openvpn bash -c 'if [ "$$(ps -ef | grep syslog | grep -v grep | wc -l)" == "0" ]; then syslogd ; fi ; tail -f -n 20 /var/log/debug.log'
+
 init: mkdirs
 	docker run --rm $(DOCKER_VOLUME_MOUNT) $(DOCKER_IMAGE_NAME) initopenvpn -u udp://192.168.11.73
 	docker run --rm -it $(DOCKER_VOLUME_MOUNT) $(DOCKER_IMAGE_NAME) initpki
