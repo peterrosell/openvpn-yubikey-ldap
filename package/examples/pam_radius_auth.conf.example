@@ -42,7 +42,7 @@
 #  but if not needed it can be just set to 0.
 #
 # server[:port]             shared_secret      timeout (s)  source_ip            vrf
-192.168.11.73               testing123          3           0
+my-radius-server             testing123         3           0
 #127.0.0.1                   secret             3
 #other-server                other-secret       5            192.168.1.10         vrf-blue
 #[2001:0db8:85a3::4]:1812    other6-secret      3            [2001:0db8:85a3::3]  vrf-red

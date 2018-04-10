@@ -1,0 +1,90 @@
+FROM alpine:3.7 as pam_radius
+
+RUN apk add --no-cache build-base git linux-pam-dev
+
+RUN git clone https://github.com/FreeRADIUS/pam_radius && \
+        cd /pam_radius && \
+        ./configure && \
+        make
+
+#FROM alpine:3.7 as pam_yubikey
+#
+#RUN apk add --no-cache build-base autoconf automake asciidoc git \
+#        libusb-dev libtool help2man curl-dev curl linux-pam-dev openldap-dev
+#
+#RUN mkdir /yubico && \
+#    cd /yubico
+#
+#RUN git clone https://github.com/Yubico/yubico-c.git && \
+#    cd yubico-c && \
+#    git checkout 6bc98cf && \
+#    cd ..  
+#
+#RUN curl -Ls https://developers.yubico.com/yubikey-personalization/Releases/ykpers-1.18.1.tar.gz | tar -xz
+#
+#RUN curl -Ls https://github.com/Yubico/yubico-c-client/archive/ykclient-2.15.tar.gz | tar -xz
+#
+#RUN curl -Ls https://github.com/Yubico/yubico-pam/archive/2.25.tar.gz | tar -xz
+#
+#RUN for dir in yubico-c ykpers-1.18.1 yubico-c-client-ykclient-2.15 yubico-pam-2.25 ; do \
+#        echo "************* BUILD $dir ***************" && \
+#        cd $dir && \
+#        autoreconf -ivf && \
+#        ./configure && \
+#        make && \
+#        make install && \
+#        cd .. \
+#    ; done
+#
+#RUN curl -Ls https://github.com/arthurdejong/nss-pam-ldapd/archive/0.9.9.tar.gz | tar -xz
+#
+#RUN cd nss-pam-ldapd-0.9.9 && \
+#    autoreconf -ivf && \
+#    ./configure && \
+#    make && \
+#    make install && \
+#    cd ..
+#
+#
+FROM alpine:3.7
+
+LABEL maintainer "Peter Rosell <peter.rosell@gmail.com>"
+
+ADD bin /usr/local/bin
+
+COPY --from=pam_radius /pam_radius/pam_radius_auth.so /lib/security/
+#COPY --from=pam_yubikey /usr/local/lib/security/pam_yubico.so /lib/security/
+#COPY --from=pam_yubikey /usr/local/lib/libykclient.so.3 /usr/lib/
+#COPY --from=pam_yubikey /usr/local/lib/libykclient.so.3.6.0 /usr/lib/
+#COPY --from=pam_yubikey /usr/local/lib/libykpers-1.so.1 /usr/lib/
+#COPY --from=pam_yubikey /usr/local/lib/libykpers-1.so.1.18.1 /usr/lib/
+#COPY --from=pam_yubikey /usr/local/lib/libyubikey.so.0 /usr/lib/
+#COPY --from=pam_yubikey /usr/local/lib/libyubikey.so.0.1.8 /usr/lib/
+
+RUN apk add --no-cache \
+    bash openvpn git openssl \
+    openvpn-auth-pam freeradius-pam && \
+# Get easy-rsa
+    git clone https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
+    cd && \
+# Cleanup
+    apk del git && \
+    rm -rf /tmp/easy-rsa/.git && cp -a /tmp/easy-rsa /usr/local/share/ && \
+    rm -rf /tmp/easy-rsa/ && \
+    ln -s /usr/local/share/easy-rsa/easyrsa3/easyrsa /usr/local/bin && \
+    chmod 774 /usr/local/bin/*
+
+# Needed by scripts
+ENV OPENVPN=/etc/openvpn \
+    EASYRSA=/usr/local/share/easy-rsa/easyrsa3 \
+    EASYRSA_PKI=/etc/openvpn/pki \
+    EASYRSA_VARS_FILE=/etc/openvpn/vars
+
+VOLUME ["/etc/openvpn"]
+
+EXPOSE 1194/udp
+
+WORKDIR /etc/openvpn
+CMD ["startopenvpn"]
+
+ADD package /

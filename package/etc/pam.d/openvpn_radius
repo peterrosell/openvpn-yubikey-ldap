@@ -1,0 +1,13 @@
+# Authentication via radius. Radius config in /etc/pam_radius_auth.conf
+auth [default=bad success=1] /lib/security/pam_radius_auth.so
+
+# here's the fallback if no module succeeds
+auth	requisite			pam_deny.so
+
+# prime the stack with a positive return value if there isn't one already;
+# this avoids us returning an error just because nothing sets a success code
+# since the modules above will each just jump around
+auth	required			pam_permit.so
+
+# Accept any user since we're dealing with virtual users there's no need to have a system account (pam_unix.so)
+account sufficient pam_permit.so

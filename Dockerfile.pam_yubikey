@@ -1,0 +1,61 @@
+FROM ubuntu:16.04 as pam_yubikey
+
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        autoconf \
+        automake \
+        asciidoc \
+        libtool \
+        git \
+        curl \
+        help2man \
+        pkg-config \
+        libcurl3-dev \
+        libldap-dev \
+        libusb-dev \
+        libpam-dev
+
+RUN mkdir /yubico
+
+RUN cd /yubico && \ 
+    git clone https://github.com/Yubico/yubico-c.git && \
+    cd yubico-c && \
+    git checkout 6bc98cf && \
+    cd ..  
+
+ENV YUBICO_VERSION=2.25
+
+RUN cd /yubico && \
+    curl -Ls https://developers.yubico.com/yubikey-personalization/Releases/ykpers-1.18.1.tar.gz | tar -xz
+
+RUN cd /yubico && \
+    curl -Ls https://github.com/Yubico/yubico-c-client/archive/ykclient-2.15.tar.gz | tar -xz
+
+RUN cd /yubico && \
+    curl -Ls https://github.com/Yubico/yubico-pam/archive/$YUBICO_VERSION.tar.gz | tar -xz
+
+RUN ls -d /yubico/*
+
+RUN for dir in yubico-c ykpers-1.18.1 ; do \
+        echo "************* BUILD $dir ***************" && \
+        cd /yubico/$dir && \
+        autoreconf -ivf && \
+        ./configure && \
+        make && \
+        make install && \
+        cd .. \
+    ; done
+
+RUN for dir in yubico-c-client-ykclient-2.15 yubico-pam-$YUBICO_VERSION ; do \
+        echo "************* BUILD $dir ***************" && \
+        echo "LIBCURL: $LIBCURL_LIBS" && \
+        echo "CFLAGS: $LIBCURL_CFLAGS" && \
+        cd /yubico/$dir && \
+        autoreconf -ivf && \
+        ./configure && \
+        make && \
+        make install && \
+        cd .. \
+    ; done
+
