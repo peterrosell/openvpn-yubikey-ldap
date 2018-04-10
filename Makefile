@@ -5,6 +5,11 @@ DOCKER_IMAGE_NAME=$(DOCKER_REGISTRY)openvpn-yubikey-ldap
 DOCKER_VOLUME_MOUNT=-v $(OVPN_DATA):/etc/openvpn
 DOCKER_RUN_FLAGS=$(DOCKER_VOLUME_MOUNT) -p 1194:1194/udp --cap-add=NET_ADMIN
 
+show-config:
+	@echo "OVPN_DATA=$(OVPN_DATA)"
+	@echo "OPENVPN_IP=$(OPENVPN_IP)"
+	@echo "DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME)"
+
 build:
 	docker build -t $(DOCKER_IMAGE_NAME) .
 
@@ -45,7 +50,7 @@ watch-ps:
 	docker exec -i -t openvpn watch -n .5 ps -ef
 
 init: mkdirs
-	docker run --rm $(DOCKER_VOLUME_MOUNT) $(DOCKER_IMAGE_NAME) initopenvpn -u udp://$(OPENVPN_IP)
+	docker run --rm $(DOCKER_VOLUME_MOUNT) $(DOCKER_IMAGE_NAME) initopenvpn -u udp://$(OPENVPN_IP) $(ARGS) && \
 	docker run --rm -it $(DOCKER_VOLUME_MOUNT) $(DOCKER_IMAGE_NAME) initpki
 
 gen-client:
@@ -53,6 +58,9 @@ gen-client:
 
 get-certs:
 	docker run --rm $(DOCKER_VOLUME_MOUNT) $(DOCKER_IMAGE_NAME) getclient $(USER) > $(USER).ovpn
+
+get-client-config:
+	docker run --rm $(DOCKER_VOLUME_MOUNT) $(DOCKER_IMAGE_NAME) getclient -X > $(OPENVPN_IP).ovpn
 
 mkdirs:
 	mkdir -p $(OVPN_DATA)

@@ -5,7 +5,10 @@
 [![Docker Stars](https://img.shields.io/docker/stars/martin/openvpn.svg)](https://hub.docker.com/r/martin/openvpn/)
 
 
-Setup a tiny(12MB), but full featured and secure OpenVPN server without effort using Docker.
+Setup a full featured and secure OpenVPN server that support Yubikey OTP, LDAP and Radius without effort using Docker.
+
+NOTE!!! A lot of info is not up to date after the fork. It will
+be updated soon.
 
 ## Quick Start
 

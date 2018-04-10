@@ -11,6 +11,7 @@ usage() {
     echo
     echo "optional arguments:"
     echo " -M    Set mssfix value"
+    echo " -X    Don't include client certificate"
 }
 
 if [ "$DEBUG" == "1" ]; then
@@ -22,10 +23,13 @@ set -e
 source "$OPENVPN/ovpn_env.sh"
 
 # Parse arguments
-while getopts ":M:" opt; do
+while getopts ":M:X" opt; do
     case $opt in
         M)
             OVPN_MSSFIX=$OPTARG
+            ;;
+        X)
+            NO_CLIENT_CERT=1
             ;;
         \?)
             set +x
@@ -45,9 +49,24 @@ shift $((OPTIND - 1))
 
 cn=$1
 
-if [ ! -f "$EASYRSA_PKI/private/${cn}.key" ]; then
-    echo "Unable to find ${cn}, please try again or generate the key first"
+if [ -z "$NO_CLIENT_CERT" ] && [ ! -f "$EASYRSA_PKI/private/${cn}.key" ]; then
+    echo "Unable to find ${cn}, please try again or generate the key first" >&2
     exit 1
+fi
+
+if [ -z "$NO_CLIENT_CERT" ]; then
+    CLIENT_CERT_SECTION="\
+<key>
+$(cat $EASYRSA_PKI/private/${cn}.key)
+</key>
+<cert>
+$(openssl x509 -in $EASYRSA_PKI/issued/${cn}.crt)
+</cert>
+"
+else
+    CLIENT_CERT_SECTION="\
+auth-user-pass
+"
 fi
 
 cat <<EOF
@@ -69,12 +88,7 @@ tls-cipher TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-ECDSA-WITH-AES-128-GC
 tls-version-min 1.2
 verify-x509-name '$(openssl x509 -in $EASYRSA_PKI/issued/${OVPN_CN}.crt -noout -subject | sed 's/subject= \///')'
 
-<key>
-$(cat $EASYRSA_PKI/private/${cn}.key)
-</key>
-<cert>
-$(openssl x509 -in $EASYRSA_PKI/issued/${cn}.crt)
-</cert>
+$CLIENT_CERT_SECTION
 <ca>
 $(cat $EASYRSA_PKI/ca.crt)
 </ca>

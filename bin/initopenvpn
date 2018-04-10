@@ -44,6 +44,11 @@ usage() {
     echo " -D    Disable built in external dns (google dns)"
     echo " -N    Configure NAT to access external server network"
     echo " -m    Set tun-mtu"
+    echo " -y    Authentication with Yubikey OTP. IDs stored in local file"
+    echo " -Y    Authentication with Yubikey OTP. IDs stored in LDAP"
+    echo " -L    Authentication with Password stored in LDAP. Can be combined with Yubikey with LDAP backend"
+    echo " -R    Authentication via Radius server"
+    echo " -X    Make client certificate optional. Only use if 2FA already is configure, such as Yubikey and password"
 }
 
 if [ "$DEBUG" == "1" ]; then
@@ -66,7 +71,7 @@ TMP_PUSH=()
 [ -r "$OVPN_ENV" ] && source "$OVPN_ENV"
 
 # Parse arguments
-while getopts ":r:s:du:cp:DNm:yYLR" opt; do
+while getopts ":r:s:du:cp:DNm:yYLRX" opt; do
     case $opt in
         r)
             TMP_ROUTES+=("$OPTARG")
@@ -106,6 +111,9 @@ while getopts ":r:s:du:cp:DNm:yYLR" opt; do
             ;;
         R)
             USE_RADIUS=1
+            ;;
+        X)
+            CLIENT_CERT_OPTIONAL=1
             ;;
         \?)
             set +x
@@ -202,8 +210,6 @@ sndbuf 393216
 rcvbuf 393216
 fast-io
 
-$PAM_SECTION
-
 user nobody
 group nogroup
 EOF
@@ -238,7 +244,7 @@ if diff -q "$bak" "$conf" 2>/dev/null; then
     rm -fv "$bak"
 fi
 
-if [ -n "$USE_LDAP" ] && [-n "$USE_YUBIKEY"] ; then
+if [ -n "$USE_LDAP" ] && [ -n "$USE_YUBIKEY" ] ; then
     PAM_METHOD=external
     cp /examples/openvpn_external.example-yubikey-and-ldap $OPENVPN
     cp /examples/ldap.conf.example $OPENVPN
@@ -251,43 +257,22 @@ elif [ -n "$USE_YUBIKEY" ] ; then
 elif [ -n "$USE_YUBIKEY_FILE" ] ; then
     PAM_METHOD=yubikey-file
     cp /examples/yubikey_mappings.example $OPENVPN
-elif [ -n "$USE_YUBIKEY_FILE" ] ; then
+elif [ -n "$USE_RADIUS" ] ; then
     PAM_METHOD=radius
     cp /examples/pam_radius_auth.conf.example $OPENVPN
 fi
 
 if [ -n "$PAM_METHOD" ]; then
     echo "Will configure usage of authentication via PAM"
-    echo "\n\
+    echo "\
 # Enable PAM for user authentication
-plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so openvpn-$PAM_METHOD
+plugin /usr/lib/openvpn/plugins/openvpn-plugin-auth-pam.so openvpn_$PAM_METHOD
 
 # Disable renegotiation, otherwise user need to relogin now and then
 #    and it works bad with one-time password 
 reneg-sec 0" >> "$conf"
 fi
 
-if [ -n "$USE_LDAP" ]; then
-    cat > $OPENVPN/ldap.conf.example <<EOF_LDAP
-# The distinguished name of the search base.
-base dc=emendatus,dc=com
-
-# Another way to specify your LDAP server is to provide an
-uri ldap://192.168.11.39/
-
-# The LDAP version to use (defaults to 3
-# if supported by client library)
-ldap_version 3
-
-# The distinguished name to bind to the server with.
-# Optional: default is to bind anonymously.
-binddn uid=freeradius.bind,cn=users,cn=accounts,dc=emendatus,dc=com
-
-# The credentials to bind with. 
-# Optional: default is no credential.
-bindpw radiusfree
-EOF_LDAP
-
-fi
+[ -n "$CLIENT_CERT_OPTIONAL" ] && echo "verify-client-cert optional" >> "$conf"
 
 echo "Successfully generated config"
