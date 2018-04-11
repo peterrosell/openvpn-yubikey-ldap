@@ -1,65 +1,143 @@
 # OpenVPN for Docker
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/chadoe/docker-openvpn/master/LICENSE)
-[![Docker Pulls](https://img.shields.io/docker/pulls/martin/openvpn.svg)](https://hub.docker.com/r/martin/openvpn/)
-[![Docker Stars](https://img.shields.io/docker/stars/martin/openvpn.svg)](https://hub.docker.com/r/martin/openvpn/)
-
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/peterrosell/openvpn-yubikey-ldap/master/LICENSE)
 
 Setup a full featured and secure OpenVPN server that support Yubikey OTP, LDAP and Radius without effort using Docker.
 
-NOTE!!! A lot of info is not up to date after the fork. It will
-be updated soon.
+Several different configuration can be used when configuring OpenVPN with
+this docker container.
+
+* Yubikey with the yubikey IDs specified in a local file
+* Yubikey with the yubikey IDs specified in the user's account info in a LDAP server.
+* Password stored in a LDAP server.
+* A combination of Yubikey ID and Password stored in a LDAP server.
+* Authentication handled by a Radius server. (Tested with FreeRadius)
+
+All the above configurations can be used with or without client certificates. Make sure you always have 2 factor authentication!
+
+## Configuration of OpenVPN
+
+When you setup OpenVPN you first have to initialize its configuration. That
+is done the `initopenvpn` command. `initopenvpn` has a number of configuration flags that can be used.
+
+To show the flags for `initopenvpn` command you can run:
+
+        docker run --rm quay.io/peter_rosell/openvpn-yubikey-ldap initopenvpn -h
+
+It will show the usage of the command:
+
+```bash
+usage: /usr/local/bin/initopenvpn [-d]
+                -u SERVER_PUBLIC_URL
+                [-s SERVER_SUBNET]
+                [-r ROUTE ...]
+                [-p PUSH ...]
+
+optional arguments:
+-h    Show this help
+-d    Disable NAT routing and default route
+-c    Enable client-to-client option
+-D    Disable built in external dns (google dns)
+-N    Configure NAT to access external server network
+-m    Set tun-mtu
+-y    Authentication with Yubikey OTP. IDs stored in local file
+-Y    Authentication with Yubikey OTP. IDs stored in LDAP
+-L    Authentication with Password stored in LDAP. Can be combined with Yubikey with LDAP backend
+-R    Authentication via Radius server
+-X    Make client certificate optional. Only use if 2FA already is configure, such as Yubikey and password
+```
+
+When specifying any of the flags -y, -Y, -L, -R example files will be generated in the openvpn data directory. You will need to create correctly
+configured file before starting the OpenVPN server. The expected files
+should be named like the example files, except for the example* part.
+I.e. openvpn_external.example-yubikey-and-ldap should be renamed to
+openvpn_external.
+
+### Required files
+
+* -y    -- yubikey_mappings
+* -L    -- ldap.conf
+* -Y    -- openvpn_external (based on openvpn_external.example-yubikey)
+* -L -Y -- ldap.cpnf and openvpn_external (based on openvpn_external.example-yubikey-and-ldap)
+* -R    -- pam_radius_auth.conf
 
 ## Quick Start
 
-1. Create the `$OVPN_DATA` volume container 
+1. Create the `$OVPN_DATA` volume container
 
         export OVPN_DATA=openvpn_data
         docker volume create --name $OVPN_DATA
 
+    - Or just set OVPN_DATA to an absolute path
+
+        export OVPN_DATA=/path/to/my/openvpn/data
+
 2. Initialize the `$OVPN_DATA` container that will hold the configuration files and certificates
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm martin/openvpn initopenvpn -u udp://VPN.SERVERNAME.COM
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it martin/openvpn initpki
+        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn initopenvpn -u udp://VPN.SERVERNAME.COM
+        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn initpki
 
 3. Start OpenVPN server process
 
-        docker run --name openvpn -v $OVPN_DATA:/etc/openvpn -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn
+        docker run --name openvpn -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN quay.io/peter_rosell/openvpn
 
-4. Generate a client certificate
+4. Generate a client certificate (only if client certificates are used)
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it martin/openvpn easyrsa build-client-full CLIENTNAME
+        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn easyrsa build-client-full CLIENTNAME
 
     - Or without a passphrase (only do this for testing purposes)
 
-            docker run -v $OVPN_DATA:/etc/openvpn --rm -it martin/openvpn easyrsa build-client-full CLIENTNAME nopass
+            docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn easyrsa build-client-full CLIENTNAME nopass
 
 5. Retrieve the client configuration with embedded certificates
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm martin/openvpn getclient CLIENTNAME > CLIENTNAME.ovpn
+        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn getclient CLIENTNAME > CLIENTNAME.ovpn
 
     - Or retrieve the client configuration with mssfix set to a lower value (yay Ziggo WifiSpots)
 
-            docker run -v $OVPN_DATA:/etc/openvpn --rm martin/openvpn getclient -M 1312 CLIENTNAME > CLIENTNAME.ovpn
+            docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn getclient -M 1312 CLIENTNAME > CLIENTNAME.ovpn
+
+    - Or if not client certificates are used just fetch the client configuration.
+
+        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn getclient -X > client-config.ovpn
 
 6. Revoke a client certificate
 		
     If you need to remove access for a client then you can revoke the client certificate by running
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it martin/openvpn revokeclient CLIENTNAME
+        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn revokeclient CLIENTNAME
 
 7. List all generated certificate names (includes the server certificate name)
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm martin/openvpn listcerts
+        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn listcerts
 
 8. Renew the CRL
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it martin/openvpn renewcrl
+        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn renewcrl
 
 * To enable (bash) debug output set an environment variable with the name DEBUG and value of 1 (using "docker -e")
-        for example `docker run -e DEBUG=1 --name openvpn -v $OVPN_DATA:/etc/openvpn -v /etc/localtime:/etc/localtime:ro -d -p 1194:1194/udp --cap-add=NET_ADMIN martin/openvpn`
+        for example `docker run -e DEBUG=1 --name openvpn -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN quay.io/peter_rosell/openvpn`
 
 * To view the log output run `docker logs openvpn`, to view it realtime run `docker logs -f openvpn`
+### Troubleshooting
+
+When troubleshooting you can do some changes in the configuration to
+activate more detailed logging.
+
+* Log level in OpenVPN
+
+To add more loggning in OpenVPN increase the log level value.
+Valid values are from 1 up to 11. Usually 9 or a bit lower will give enough info.
+
+* pam logging
+
+pam logs to syslog and the syslog daemon is not running inside the container
+by default. To activate pam logging you will first need to add `debug` to
+the pam module that you want to troubleshoot. The start the syslog daemon 
+inside the container and watch the logs. When having the OpenVPN container running you can use this command:
+
+        docker exec -i -t openvpn bash -c 'if [ "$$(ps -ef | grep syslog | grep -v grep | wc -l)" == "0" ]; then syslogd ; fi ; tail -f -n 20 /var/log/debug.log'
+
 
 ## Settings and features
 * OpenVPN 2.4.5
@@ -85,13 +163,9 @@ be updated soon.
 * The configuration is located in `/etc/openvpn`
 * Certificates are generated in `/etc/openvpn/pki`.
 
-
 ## Tested On
 
 * Clients
-  * Android, OpenVPN Connect 1.1.14 (built 56)
-  * Android, OpenVPN for Android 0.6.50
-  * Windows 10 64 bit using openvpn-2.4.0
+  * Ubuntu OpenVPN Client (Network Manager)
 
-
-Based on [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn).
+Based on [chadoe/docker-openvpn](https://github.com/chadoe/docker-openvpn) [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn).

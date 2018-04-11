@@ -39,6 +39,7 @@ usage() {
     echo "                 [-p PUSH ...]"
     echo
     echo "optional arguments:"
+    echo " -h    Show this help"
     echo " -d    Disable NAT routing and default route"
     echo " -c    Enable client-to-client option"
     echo " -D    Disable built in external dns (google dns)"
@@ -71,7 +72,7 @@ TMP_PUSH=()
 [ -r "$OVPN_ENV" ] && source "$OVPN_ENV"
 
 # Parse arguments
-while getopts ":r:s:du:cp:DNm:yYLRX" opt; do
+while getopts ":r:s:du:cp:DNm:yYLRXh" opt; do
     case $opt in
         r)
             TMP_ROUTES+=("$OPTARG")
@@ -114,6 +115,10 @@ while getopts ":r:s:du:cp:DNm:yYLRX" opt; do
             ;;
         X)
             CLIENT_CERT_OPTIONAL=1
+            ;;
+        h)
+            usage
+            exit 0
             ;;
         \?)
             set +x

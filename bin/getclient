@@ -9,7 +9,8 @@ usage() {
     echo "usage: $0 [-M] clientname"
     echo "                 [-M MSSFIX_VALUE]"
     echo
-    echo "optional arguments:"
+    echo "optional arguments:" 
+    echo " -h    Show this help"
     echo " -M    Set mssfix value"
     echo " -X    Don't include client certificate"
 }
@@ -20,16 +21,18 @@ fi
 
 set -e
 
-source "$OPENVPN/ovpn_env.sh"
-
 # Parse arguments
-while getopts ":M:X" opt; do
+while getopts ":M:Xh" opt; do
     case $opt in
         M)
             OVPN_MSSFIX=$OPTARG
             ;;
         X)
             NO_CLIENT_CERT=1
+            ;;
+        h)
+            usage
+            exit 0
             ;;
         \?)
             set +x
@@ -46,6 +49,8 @@ while getopts ":M:X" opt; do
     esac
 done
 shift $((OPTIND - 1))
+
+source "$OPENVPN/ovpn_env.sh"
 
 cn=$1
 
