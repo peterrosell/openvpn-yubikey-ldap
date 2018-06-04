@@ -72,53 +72,58 @@ openvpn_external.
 
         export OVPN_DATA=/path/to/my/openvpn/data
 
-2. Initialize the `$OVPN_DATA` container that will hold the configuration files and certificates
+2a. Initialize the `$OVPN_DATA` data store that will hold the configuration files and certificates. This example shows how to setup without default routing and using LDAP for both user/password and yubikey id. Client certificate is optional. 
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn initopenvpn -u udp://VPN.SERVERNAME.COM
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn initpki
+        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn-yubikey-ldap initopenvpn -u udp://VPN.SERVERNAME.COM -dLYX
+        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap initpki
+
+2b. Rename the generated example file for yubikey's PAM configuration from `openvpn_external.example-yubikey-and-ldap` to `openvpn_external`. Edit the parameters for the yubikey PAM module to match your LDAP server's settings. If you want debug output you can add `debug` at the end of the file.
+
+2c. Rename the generated example file for LDAP config from `ldap.conf.example` to `ldap.conf`. Edit the values for `base`, `uri`, `binddn` and `bindpw`.
 
 3. Start OpenVPN server process
 
-        docker run --name openvpn -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN quay.io/peter_rosell/openvpn
+        docker run --name openvpn -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN quay.io/peter_rosell/openvpn-yubikey-ldap
 
 4. Generate a client certificate (only if client certificates are used)
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn easyrsa build-client-full CLIENTNAME
+        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap easyrsa build-client-full CLIENTNAME
 
     - Or without a passphrase (only do this for testing purposes)
 
-            docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn easyrsa build-client-full CLIENTNAME nopass
+            docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap easyrsa build-client-full CLIENTNAME nopass
 
 5. Retrieve the client configuration with embedded certificates
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn getclient CLIENTNAME > CLIENTNAME.ovpn
+        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn-yubikey-ldap getclient CLIENTNAME > CLIENTNAME.ovpn
 
     - Or retrieve the client configuration with mssfix set to a lower value (yay Ziggo WifiSpots)
 
-            docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn getclient -M 1312 CLIENTNAME > CLIENTNAME.ovpn
+            docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn-yubikey-ldap getclient -M 1312 CLIENTNAME > CLIENTNAME.ovpn
 
     - Or if not client certificates are used just fetch the client configuration.
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn getclient -X > client-config.ovpn
+        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn-yubikey-ldap getclient -X > client-config.ovpn
 
 6. Revoke a client certificate
 		
     If you need to remove access for a client then you can revoke the client certificate by running
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn revokeclient CLIENTNAME
+        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap revokeclient CLIENTNAME
 
 7. List all generated certificate names (includes the server certificate name)
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn listcerts
+        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn-yubikey-ldap listcerts
 
 8. Renew the CRL
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn renewcrl
+        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap renewcrl
 
 * To enable (bash) debug output set an environment variable with the name DEBUG and value of 1 (using "docker -e")
-        for example `docker run -e DEBUG=1 --name openvpn -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN quay.io/peter_rosell/openvpn`
+        for example `docker run -e DEBUG=1 --name openvpn -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN quay.io/peter_rosell/openvpn-yubikey-ldap`
 
 * To view the log output run `docker logs openvpn`, to view it realtime run `docker logs -f openvpn`
+
 ### Troubleshooting
 
 When troubleshooting you can do some changes in the configuration to
