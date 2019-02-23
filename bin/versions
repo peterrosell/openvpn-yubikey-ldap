@@ -1,0 +1,2 @@
+#!/bin/bash
+apt list --installed | egrep yubi\|openvpn\|libpam\|libaudit
