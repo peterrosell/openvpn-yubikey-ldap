@@ -3,43 +3,29 @@ FROM ubuntu:18.04
 LABEL maintainer "Peter Rosell <peter.rosell@gmail.com>"
 
 # install openvpn and yubico pam module
-RUN . /etc/lsb-release 
-
-RUN    apt-get update 
-
-RUN    DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        gnupg 
-
-RUN . /etc/lsb-release && echo "deb http://ppa.launchpad.net/yubico/stable/ubuntu $DISTRIB_CODENAME main" >> /etc/apt/sources.list && \
+RUN . /etc/lsb-release && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        gnupg && \
+    . /etc/lsb-release && echo "deb http://ppa.launchpad.net/yubico/stable/ubuntu $DISTRIB_CODENAME main" >> /etc/apt/sources.list && \
     echo "deb-src http://ppa.launchpad.net/yubico/stable/ubuntu $DISTRIB_CODENAME main " >> /etc/apt/sources.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 32CBA1A9 
-
-RUN    apt-get update 
-
-RUN    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 32CBA1A9 && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
         nano \
         curl \
-        libcurl4 
-
-RUN    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        libcurl4 && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
         inetutils-syslogd \
-        libpam-ldap 
-RUN    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        libpam-ldap && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
         libpam-radius-auth \
         libpam-yubico \
     && \
     apt-get clean autoclean && apt-get autoremove -y && rm -rf /var/lib/{apt,dpkg,cache,log}/
 
-RUN . /etc/lsb-release && \
-    curl -s https://swupdate.openvpn.net/repos/repo-public.gpg | apt-key add && \
-    echo "deb http://build.openvpn.net/debian/openvpn/stable $DISTRIB_CODENAME main" > /etc/apt/sources.list.d/openvpn-aptrepo.list && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        iptables \
-        git 
-#    && \
-#    apt-get clean autoclean && apt-get autoremove -y && rm -rf /var/lib/{apt,dpkg,cache,log}/
-
+# Patch base image to allow installation of openvpn.
+# postinst scripts in deb package don't work inside ubuntu 18 base image
 RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d 
 RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/invoke-rc.d 
 RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/update-rc.d 
@@ -47,9 +33,17 @@ RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/systemctl
 RUN chmod +x /usr/sbin/systemctl
 RUN ln -s /systemd /sbin/init
 
-RUN     DEBIAN_SCRIPT_DEBUG=true DEBIAN_FRONTEND=noninteractive apt-get install -yq \
-        openvpn 
-
+# DEBIAN_SCRIPT_DEBUG=true
+RUN . /etc/lsb-release && \
+    curl -s https://swupdate.openvpn.net/repos/repo-public.gpg | apt-key add && \
+    echo "deb http://build.openvpn.net/debian/openvpn/stable $DISTRIB_CODENAME main" > /etc/apt/sources.list.d/openvpn-aptrepo.list && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        iptables \
+        git \
+        openvpn \ 
+    && \
+    apt-get clean autoclean && apt-get autoremove -y && rm -rf /var/lib/{apt,dpkg,cache,log}/
 
 # Get easy-rsa
 RUN git clone https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
