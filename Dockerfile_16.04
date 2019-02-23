@@ -1,30 +1,19 @@
-FROM ubuntu:18.04
+FROM ubuntu:16.04
 
 LABEL maintainer "Peter Rosell <peter.rosell@gmail.com>"
 
 # install openvpn and yubico pam module
-RUN . /etc/lsb-release 
-
-RUN    apt-get update 
-
-RUN    DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        gnupg 
-
-RUN . /etc/lsb-release && echo "deb http://ppa.launchpad.net/yubico/stable/ubuntu $DISTRIB_CODENAME main" >> /etc/apt/sources.list && \
+RUN . /etc/lsb-release && \
+    echo "deb http://ppa.launchpad.net/yubico/stable/ubuntu $DISTRIB_CODENAME main" >> /etc/apt/sources.list && \
     echo "deb-src http://ppa.launchpad.net/yubico/stable/ubuntu $DISTRIB_CODENAME main " >> /etc/apt/sources.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 32CBA1A9 
-
-RUN    apt-get update 
-
-RUN    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 32CBA1A9 && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
         nano \
         curl \
-        libcurl4 
-
-RUN    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        libcurl3 \
         inetutils-syslogd \
-        libpam-ldap 
-RUN    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        libpam-ldap \
         libpam-radius-auth \
         libpam-yubico \
     && \
@@ -35,21 +24,11 @@ RUN . /etc/lsb-release && \
     echo "deb http://build.openvpn.net/debian/openvpn/stable $DISTRIB_CODENAME main" > /etc/apt/sources.list.d/openvpn-aptrepo.list && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        openvpn \
         iptables \
-        git 
-#    && \
-#    apt-get clean autoclean && apt-get autoremove -y && rm -rf /var/lib/{apt,dpkg,cache,log}/
-
-RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d 
-RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/invoke-rc.d 
-RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/update-rc.d 
-RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/systemctl  
-RUN chmod +x /usr/sbin/systemctl
-RUN ln -s /systemd /sbin/init
-
-RUN     DEBIAN_SCRIPT_DEBUG=true DEBIAN_FRONTEND=noninteractive apt-get install -yq \
-        openvpn 
-
+        git \
+    && \
+    apt-get clean autoclean && apt-get autoremove -y && rm -rf /var/lib/{apt,dpkg,cache,log}/
 
 # Get easy-rsa
 RUN git clone https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
