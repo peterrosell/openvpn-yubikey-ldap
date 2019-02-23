@@ -1,0 +1,33 @@
+#!/bin/bash -u
+
+TRIGGER_TEXT='PLUGIN_AUTH_USER_PASS_VERIFY failed with status'
+KILL_DELAY=2
+LOGMON_ACTIVE_MODE=${LOGMON_ACTIVE_MODE:-false}
+
+echo "Logmon is started!!!"
+
+if $LOGMON_ACTIVE_MODE; then
+    echo "Running in active mode!"
+else
+    echo "Running in dry-run mode!"
+fi
+
+while read line
+do
+    if [[ $line =~ $TRIGGER_TEXT ]]; then
+        echo "DETECTED A NON-WORKING AUTH MODULE IN OPENVPN. WILL COLLECT INFO AND KILL IT."
+        echo "Triggered by this line \'$line\'"
+        echo "Running processes"
+        ps -ef
+        PIDS=$(pgrep '^openvpn')
+        
+        $LOGMON_ACTIVE_MODE && (echo "Killing PID $PIDS" && kill $PIDS) || echo "DRY-RUN: Would have killed PID $PIDS"
+        echo "Waiting $KILL_DELAY seconds"
+        sleep $KILL_DELAY
+        $LOGMON_ACTIVE_MODE && (echo "Killing PID $PIDS hard (-9)" && kill -9 $PIDS) || echo "DRY-RUN: Would have killed PID $PIDS hard (-9)"
+    fi
+done
+
+echo "LOGMON FAILING!!!! ABORTING OPENVPN!!"
+PIDS=$(pgrep '^openvpn')
+kill -9 $PIDS

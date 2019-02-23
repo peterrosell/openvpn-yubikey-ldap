@@ -35,4 +35,7 @@ fi
 
 conf="$OPENVPN/openvpn.conf"
 
-exec openvpn --config "$conf"
+mkfifo /openvpn_log
+cat /openvpn_log | logmon &
+
+exec openvpn --config "$conf" | tee /openvpn_log
