@@ -5,6 +5,7 @@ KILL_DELAY=2
 LOGMON_ACTIVE_MODE=${LOGMON_ACTIVE_MODE:-false}
 
 echo "Logmon is started!!!"
+echo "Logmon will trigger log text '$TRIGGER_TEXT'"
 
 if $LOGMON_ACTIVE_MODE; then
     echo "Running in active mode!"
