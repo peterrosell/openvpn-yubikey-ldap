@@ -19,13 +19,19 @@ build-compile-yubikey:
 	cat Dockerfile.pam_yubikey Dockerfile | docker build -f - -t $(DOCKER_IMAGE) .
 
 build-ubuntu16:
-	docker build -f Dockerfile_16.04 -t $(DOCKER_IMAGE_NAME):ubuntu16-$(DOCKER_IMAGE_VERSION) .
+	docker build -f Dockerfile_16.04 -t $(DOCKER_IMAGE)-ubuntu16 .
 
 build-alpine:
-	docker build -f Dockerfile.alpine -t $(DOCKER_IMAGE_NAME):alpine-$(DOCKER_IMAGE_VERSION) .
+	docker build -f Dockerfile.alpine -t $(DOCKER_IMAGE)-alpine .
 
 push:
 	docker push $(DOCKER_IMAGE)
+
+push-ubuntu16:
+	docker push $(DOCKER_IMAGE)-ubuntu16
+
+push-alpine:
+	docker push $(DOCKER_IMAGE)-alpine
 
 run:
 	docker run -it --rm --name openvpn $(DOCKER_RUN_FLAGS) $(DOCKER_IMAGE)
