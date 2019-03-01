@@ -13,15 +13,18 @@ show-config:
 	@echo "DOCKER_IMAGE=$(DOCKER_IMAGE)"
 
 build:
+	docker pull $$(cat Dockerfile | head -1 | cut -d' ' -f2) && \
 	docker build -t $(DOCKER_IMAGE) .
 
 build-compile-yubikey:
 	cat Dockerfile.pam_yubikey Dockerfile | docker build -f - -t $(DOCKER_IMAGE) .
 
 build-ubuntu16:
+	docker pull $$(cat Dockerfile_16.04 | head -1 | cut -d' ' -f2) && \
 	docker build -f Dockerfile_16.04 -t $(DOCKER_IMAGE)-ubuntu16 .
 
 build-alpine:
+	docker pull $$(cat Dockerfile.alpine | head -1 | cut -d' ' -f2) && \
 	docker build -f Dockerfile.alpine -t $(DOCKER_IMAGE)-alpine .
 
 push:
