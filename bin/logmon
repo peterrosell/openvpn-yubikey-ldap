@@ -17,7 +17,7 @@ while read line
 do
     if [[ $line =~ $TRIGGER_TEXT ]]; then
         PID=$(ps aux | grep openvpn | grep defunct | grep -v grep)
-        if [[ -z "${PID}" ]]
+        if [[ -n "${PID}" ]]
         then
             echo "DETECTED A NON-WORKING AUTH MODULE IN OPENVPN. WILL COLLECT INFO AND KILL IT."
             echo "Triggered by this line \'$line\'"
