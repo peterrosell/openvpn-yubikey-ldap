@@ -1,0 +1,19 @@
+[Unit]
+Description=OpenVPN
+Requires=openvpn.service
+After=openvpn.service
+
+[Service]
+Environment=CONTAINER_NAME=openvpn
+Environment=CIDR=10.5.84.0/22
+ExecStart=/bin/bash -c "\
+	IPADDRESS=$(/usr/bin/docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER_NAME}) && \
+	ip route add ${CIDR} via $IPADDRESS dev docker0"
+ExecStop=-/bin/bash -c "\
+        IPADDRESS=$(/usr/bin/docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER_NAME}) && \
+        ip route del ${CIDR} via $IPADDRESS dev docker0"
+RemainAfterExit=true
+TimeoutSec=10s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,25 @@
+[Unit]
+Description=OpenVPN
+Requires=docker.service
+After=docker.service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=CONTAINER_NAME=openvpn
+Environment=OVPN_DATA=/opt/openvpn
+ExecStartPre=-/usr/bin/docker rm -f ${CONTAINER_NAME}
+ExecStart=/usr/bin/echo /usr/bin/docker run \
+    --name openvpn \
+    -v $OVPN_DATA:/etc/openvpn \
+    -v /etc/localtime:/etc/localtime:ro \
+    -p 1194:1194/udp \
+    --cap-add=NET_ADMIN \
+    openvpn
+ExecStop=-/usr/bin/docker stop ${CONTAINER_NAME}
+Restart=always
+TimeoutSec=10s
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
