@@ -271,7 +271,7 @@ if [ -n "$PAM_METHOD" ]; then
     echo "Will configure usage of authentication via PAM"
     echo "\
 # Enable PAM for user authentication
-plugin /usr/lib/openvpn/plugins/openvpn-plugin-auth-pam.so openvpn_$PAM_METHOD
+plugin /usr/lib/x86_64-linux-gnu/openvpn/plugins/openvpn-plugin-auth-pam.so openvpn_$PAM_METHOD
 
 # Disable renegotiation, otherwise user need to relogin now and then
 #    and it works bad with one-time password 
@@ -279,5 +279,28 @@ reneg-sec 0" >> "$conf"
 fi
 
 [ -n "$CLIENT_CERT_OPTIONAL" ] && echo "verify-client-cert optional" >> "$conf"
+
+if [ ! -f "$OPENVPN/vars" ]; then
+    cat > $OPENVPN/vars << EOF
+set_var EASYRSA                 "$PWD"
+set_var EASYRSA_PKI             "/etc/openvpn/pki"
+set_var EASYRSA_DN              "cn_only"
+set_var EASYRSA_REQ_COUNTRY     "EX"
+set_var EASYRSA_REQ_PROVINCE    "Example area"
+set_var EASYRSA_REQ_CITY        "Example city"
+set_var EASYRSA_REQ_ORG         "Example CERTIFICATE AUTHORITY"
+set_var EASYRSA_REQ_EMAIL       "ca@example.com"
+set_var EASYRSA_REQ_OU          "Example CA"
+set_var EASYRSA_KEY_SIZE        2048
+set_var EASYRSA_ALGO            rsa
+set_var EASYRSA_CA_EXPIRE       9130 
+set_var EASYRSA_CERT_EXPIRE     3650
+set_var EASYRSA_NS_SUPPORT      "no"
+set_var EASYRSA_NS_COMMENT      "Example CERTIFICATE AUTHORITY"
+set_var EASYRSA_EXT_DIR         "/usr/local/share/easyrsa/x509-types"
+set_var EASYRSA_SSL_CONF        "/usr/local/share/easyrsa/openssl-easyrsa.cnf"
+set_var EASYRSA_DIGEST          "sha256"
+EOF
+fi
 
 echo "Successfully generated config"

@@ -1,11 +1,11 @@
 OVPN_DATA ?= $(PWD)/.tmp/openvpn_data
 OPENVPN_IP ?= my-openvpn-server
-DOCKER_REGISTRY ?= peterrosell/
-DOCKER_IMAGE_VERSION=latest
+DOCKER_REGISTRY ?= quay.io/peter_rosell/
+DOCKER_IMAGE_VERSION ?= latest
 DOCKER_IMAGE_NAME=$(DOCKER_REGISTRY)openvpn-yubikey-ldap
-DOCKER_IMAGE=$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION)
+DOCKER_IMAGE ?= $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION)
 DOCKER_VOLUME_MOUNT=-v $(OVPN_DATA):/etc/openvpn
-DOCKER_RUN_FLAGS=$(DOCKER_VOLUME_MOUNT) -p 1194:1194/udp -v /dev/urandom:/dev/random -e LOGMON_ACTIVE_MODE=true --net=host --cap-add=NET_ADMIN
+DOCKER_RUN_FLAGS=$(DOCKER_VOLUME_MOUNT) -p 1194:1194/udp -v /dev/urandom:/dev/random -e LOGMON_ACTIVE_MODE=false --net=host --cap-add=NET_ADMIN
 
 show-config:
 	@echo "OVPN_DATA=$(OVPN_DATA)"
@@ -16,8 +16,8 @@ build:
 	docker pull $$(cat Dockerfile | head -1 | cut -d' ' -f2) && \
 	docker build -t $(DOCKER_IMAGE) .
 
-build-compile-yubikey:
-	cat Dockerfile.pam_yubikey Dockerfile | docker build -f - -t $(DOCKER_IMAGE) .
+build-compiled-yubico: build
+	docker build --build-arg BASE_IMAGE=$(DOCKER_IMAGE) -t $(DOCKER_IMAGE)-compiled-yubico -f Dockerfile.compiled-yubico .
 
 build-ubuntu16:
 	docker pull $$(cat Dockerfile_16.04 | head -1 | cut -d' ' -f2) && \
@@ -30,6 +30,9 @@ build-alpine:
 push:
 	docker push $(DOCKER_IMAGE)
 
+push-compiled-yubico:
+	docker push $(DOCKER_IMAGE)-compiled-yubico
+
 push-ubuntu16:
 	docker push $(DOCKER_IMAGE)-ubuntu16
 
@@ -38,6 +41,15 @@ push-alpine:
 
 run:
 	docker run -it --rm --name openvpn $(DOCKER_RUN_FLAGS) $(DOCKER_IMAGE)
+
+run-local-dns:
+	docker run -it --rm --name openvpn --dns=192.168.11.3 $(DOCKER_RUN_FLAGS) $(DOCKER_IMAGE)
+
+run-p:
+	docker run -it --rm --name openvpn --privileged $(DOCKER_RUN_FLAGS) $(DOCKER_IMAGE)
+
+run-compiled-yubico:
+	docker run -it --rm --name openvpn --privileged --cap-add=ALL $(DOCKER_RUN_FLAGS) $(DOCKER_IMAGE)-compiled-yubico
 
 run-debug:
 	docker run -it --rm --name openvpn $(DOCKER_RUN_FLAGS) -e DEBUG=true $(DOCKER_IMAGE)
@@ -81,3 +93,10 @@ get-client-config:
 
 mkdirs:
 	mkdir -p $(OVPN_DATA)
+
+
+get-client-config-from-k8s:
+	kubectl exec $(kubectl get pod --selector=app=openvpn -ojson | jq '.items[].metadata.name' -r) -- getclient -X 
+
+
+# 10.1.182.194

@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 LABEL maintainer "Peter Rosell <peter.rosell@gmail.com>"
 
-# install openvpn and yubico pam module
+##### install yubico pam module + other tools
 RUN . /etc/lsb-release && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -12,7 +12,6 @@ RUN . /etc/lsb-release && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 32CBA1A9 && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        nano \
         curl \
         libcurl4 && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -24,14 +23,17 @@ RUN . /etc/lsb-release && \
     && \
     apt-get clean autoclean && apt-get autoremove -y && rm -rf /var/lib/{apt,dpkg,cache,log}/
 
+
+##### install openvpn and yubico pam module
+
 # Patch base image to allow installation of openvpn.
 # postinst scripts in deb package don't work inside ubuntu 18 base image
-RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d 
-RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/invoke-rc.d 
-RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/update-rc.d 
-RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/systemctl  
-RUN chmod +x /usr/sbin/systemctl
-RUN ln -s /systemd /sbin/init
+RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d &&\
+    echo "#!/bin/sh\nexit 0" > /usr/sbin/invoke-rc.d &&\
+    echo "#!/bin/sh\nexit 0" > /usr/sbin/update-rc.d &&\
+    echo "#!/bin/sh\nexit 0" > /usr/sbin/systemctl &&\
+    chmod +x /usr/sbin/systemctl &&\
+    ln -s /systemd /sbin/init
 
 # DEBIAN_SCRIPT_DEBUG=true
 RUN . /etc/lsb-release && \
@@ -45,27 +47,17 @@ RUN . /etc/lsb-release && \
     && \
     apt-get clean autoclean && apt-get autoremove -y && rm -rf /var/lib/{apt,dpkg,cache,log}/
 
-# Get easy-rsa
-RUN git clone https://github.com/OpenVPN/easy-rsa.git /tmp/easy-rsa && \
-    cd && \
-# Cleanup
-    rm -rf /tmp/easy-rsa/.git && cp -a /tmp/easy-rsa /usr/local/share/ && \
-    rm -rf /tmp/easy-rsa/ && \
-    ln -s /usr/local/share/easy-rsa/easyrsa3/easyrsa /usr/local/bin && \
-    chmod 774 /usr/local/bin/*
-
-# Enable these copy commands if you want to used libraries from source
-#COPY --from=pam_yubikey /usr/local/lib/security/pam_yubico.so /lib/security/
-#COPY --from=pam_yubikey /usr/local/lib/libykclient.so.3 /usr/lib/
-#COPY --from=pam_yubikey /usr/local/lib/libykclient.so.3.6.0 /usr/lib/
-#COPY --from=pam_yubikey /usr/local/lib/libykpers-1.so.1 /usr/lib/
-#COPY --from=pam_yubikey /usr/local/lib/libykpers-1.so.1.18.1 /usr/lib/
-#COPY --from=pam_yubikey /usr/local/lib/libyubikey.so.0 /usr/lib/
-#COPY --from=pam_yubikey /usr/local/lib/libyubikey.so.0.1.8 /usr/lib/
+##### install Easy-RSA
+RUN cd /tmp && \
+    curl -sLOf https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.8/EasyRSA-3.0.8.tgz &&\
+    tar -xvzf EasyRSA-3.0.8.tgz &&\
+    mkdir /usr/local/share/easyrsa &&\
+    cp -r EasyRSA-3.0.8/* /usr/local/share/easyrsa &&\
+    ln -s /usr/local/share/easyrsa/easyrsa /usr/local/bin
 
 # Needed by scripts
 ENV OPENVPN=/etc/openvpn \
-    EASYRSA=/usr/local/share/easy-rsa/easyrsa3 \
+    EASYRSA=/usr/local/share/easyrsa \
     EASYRSA_PKI=/etc/openvpn/pki \
     EASYRSA_VARS_FILE=/etc/openvpn/vars
 

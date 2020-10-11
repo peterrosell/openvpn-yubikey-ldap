@@ -138,15 +138,15 @@ Valid values are from 1 up to 11. Usually 9 or a bit lower will give enough info
 
 pam logs to syslog and the syslog daemon is not running inside the container
 by default. To activate pam logging you will first need to add `debug` to
-the pam module that you want to troubleshoot. The start the syslog daemon 
+the pam module that you want to troubleshoot. The start the syslog daemon
 inside the container and watch the logs. When having the OpenVPN container running you can use this command:
 
         docker exec -i -t openvpn bash -c 'if [ "$$(ps -ef | grep syslog | grep -v grep | wc -l)" == "0" ]; then syslogd ; fi ; tail -f -n 20 /var/log/debug.log'
 
 
 ## Settings and features
-* OpenVPN 2.4.5
-* Easy-RSA v3.0.1+
+* OpenVPN 2.4.9
+* Easy-RSA v3.0.8
 * `tun` mode because it works on the widest range of devices. `tap` mode, for instance, does not work on Android, except if the device is rooted.
 * The UDP server uses`192.168.255.0/24` for clients.
 * TLS 1.2 minimum
@@ -172,5 +172,7 @@ inside the container and watch the logs. When having the OpenVPN container runni
 
 * Clients
   * Ubuntu OpenVPN Client (Network Manager)
+  * Windows
+  * OpenVPN for Android
 
 Based on [chadoe/docker-openvpn](https://github.com/chadoe/docker-openvpn) [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn).

@@ -12,6 +12,8 @@ set -e
 
 source "$OPENVPN/ovpn_env.sh"
 
+
+
 # Specify "nopass" as arg[2] to make the CA insecure (not recommended!)
 nopass=$1
 
