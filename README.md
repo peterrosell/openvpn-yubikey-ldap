@@ -18,7 +18,7 @@ All the above configurations can be used with or without client certificates. Ma
 ## Configuration of OpenVPN
 
 When you setup OpenVPN you first have to initialize its configuration. That
-is done the `initopenvpn` command. `initopenvpn` has a number of configuration flags that can be used.
+is done with the `initopenvpn` command. `initopenvpn` has a number of configuration flags that can be used.
 
 To show the flags for `initopenvpn` command you can run:
 
@@ -65,17 +65,13 @@ openvpn_external.
 
 1. Create the `$OVPN_DATA` volume container
 
-        export OVPN_DATA=openvpn_data
-        docker volume create --name $OVPN_DATA
-
-    - Or just set OVPN_DATA to an absolute path
-
         export OVPN_DATA=/path/to/my/openvpn/data
+        export EASYRSA_CONFIG_DIR=/path/to/my/easy-rsa
 
 2a. Initialize the `$OVPN_DATA` data store that will hold the configuration files and certificates. This example shows how to setup without default routing and using LDAP for both user/password and yubikey id. Client certificate is optional. 
 
         docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn-yubikey-ldap initopenvpn -u udp://VPN.SERVERNAME.COM -dLYX
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap initpki
+        docker run -v $OVPN_DATA:/etc/openvpn -v $EASYRSA_CONFIG_DIR=/etc/easy-rsa --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap initpki
 
 2b. Rename the generated example file for yubikey's PAM configuration from `openvpn_external.example-yubikey-and-ldap` to `openvpn_external`. Edit the parameters for the yubikey PAM module to match your LDAP server's settings. If you want debug output you can add `debug` at the end of the file.
 
@@ -83,41 +79,41 @@ openvpn_external.
 
 3. Start OpenVPN server process
 
-        docker run --name openvpn -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN quay.io/peter_rosell/openvpn-yubikey-ldap
+        docker run --name openvpn -v $OVPN_DATA:/etc/openvpn -v $EASYRSA_CONFIG_DIR=/etc/easy-rsa -d -p 1194:1194/udp --cap-add=NET_ADMIN quay.io/peter_rosell/openvpn-yubikey-ldap
 
 4. Generate a client certificate (only if client certificates are used)
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap easyrsa build-client-full CLIENTNAME
+        docker run -v $OVPN_DATA:/etc/openvpn -v $EASYRSA_CONFIG_DIR=/etc/easy-rsa --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap easyrsa build-client-full CLIENTNAME
 
     - Or without a passphrase (only do this for testing purposes)
 
-            docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap easyrsa build-client-full CLIENTNAME nopass
+            docker run -v $OVPN_DATA:/etc/openvpn -v $EASYRSA_CONFIG_DIR=/etc/easy-rsa --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap easyrsa build-client-full CLIENTNAME nopass
 
 5. Retrieve the client configuration with embedded certificates
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn-yubikey-ldap getclient CLIENTNAME > CLIENTNAME.ovpn
+        docker run -v $OVPN_DATA:/etc/openvpn -v $EASYRSA_CONFIG_DIR=/etc/easy-rsa --rm quay.io/peter_rosell/openvpn-yubikey-ldap getclient CLIENTNAME > CLIENTNAME.ovpn
 
     - Or retrieve the client configuration with mssfix set to a lower value (yay Ziggo WifiSpots)
 
-            docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn-yubikey-ldap getclient -M 1312 CLIENTNAME > CLIENTNAME.ovpn
+            docker run -v $OVPN_DATA:/etc/openvpn -v $EASYRSA_CONFIG_DIR=/etc/easy-rsa --rm quay.io/peter_rosell/openvpn-yubikey-ldap getclient -M 1312 CLIENTNAME > CLIENTNAME.ovpn
 
     - Or if not client certificates are used just fetch the client configuration.
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn-yubikey-ldap getclient -X > client-config.ovpn
+        docker run -v $OVPN_DATA:/etc/openvpn -v $EASYRSA_CONFIG_DIR=/etc/easy-rsa --rm quay.io/peter_rosell/openvpn-yubikey-ldap getclient -X > client-config.ovpn
 
 6. Revoke a client certificate
 		
     If you need to remove access for a client then you can revoke the client certificate by running
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap revokeclient CLIENTNAME
+        docker run -v $OVPN_DATA:/etc/openvpn -v $EASYRSA_CONFIG_DIR=/etc/easy-rsa --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap revokeclient CLIENTNAME
 
 7. List all generated certificate names (includes the server certificate name)
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm quay.io/peter_rosell/openvpn-yubikey-ldap listcerts
+        docker run -v $OVPN_DATA:/etc/openvpn -v $EASYRSA_CONFIG_DIR=/etc/easy-rsa --rm quay.io/peter_rosell/openvpn-yubikey-ldap listcerts
 
 8. Renew the CRL
 
-        docker run -v $OVPN_DATA:/etc/openvpn --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap renewcrl
+        docker run -v $OVPN_DATA:/etc/openvpn -v $EASYRSA_CONFIG_DIR=/etc/easy-rsa --rm -it quay.io/peter_rosell/openvpn-yubikey-ldap renewcrl
 
 * To enable (bash) debug output set an environment variable with the name DEBUG and value of 1 (using "docker -e")
         for example `docker run -e DEBUG=1 --name openvpn -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN quay.io/peter_rosell/openvpn-yubikey-ldap`
@@ -145,8 +141,9 @@ inside the container and watch the logs. When having the OpenVPN container runni
 
 
 ## Settings and features
-* OpenVPN 2.4.9
-* Easy-RSA v3.0.8
+* OpenVPN 2.5.7
+* OpenSSL 3.0.2
+* Easy-RSA v3.1.1
 * `tun` mode because it works on the widest range of devices. `tap` mode, for instance, does not work on Android, except if the device is rooted.
 * The UDP server uses`192.168.255.0/24` for clients.
 * TLS 1.2 minimum
@@ -166,7 +163,7 @@ inside the container and watch the logs. When having the OpenVPN container runni
 * Google DNS (8.8.4.4 and 8.8.8.8)
 
 * The configuration is located in `/etc/openvpn`
-* Certificates are generated in `/etc/openvpn/pki`.
+* Certificates are generated in `/etc/easy-rsa/pki`.
 
 ## Tested On
 

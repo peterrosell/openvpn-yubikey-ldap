@@ -91,7 +91,7 @@ cipher AES-256-CBC
 auth SHA256
 tls-cipher TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 tls-version-min 1.2
-verify-x509-name '$(openssl x509 -in $EASYRSA_PKI/issued/${OVPN_CN}.crt -noout -subject | sed 's/subject= \///')'
+verify-x509-name '$(openssl x509 -in $EASYRSA_PKI/issued/${OVPN_CN}.crt -noout -subject | sed 's/subject=//' | sed 's/ //g')'
 
 $CLIENT_CERT_SECTION
 <ca>

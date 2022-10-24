@@ -283,7 +283,7 @@ fi
 if [ ! -f "$OPENVPN/vars" ]; then
     cat > $OPENVPN/vars << EOF
 set_var EASYRSA                 "$PWD"
-set_var EASYRSA_PKI             "/etc/openvpn/pki"
+set_var EASYRSA_PKI             "/etc/easy-rsa/pki"
 set_var EASYRSA_DN              "cn_only"
 set_var EASYRSA_REQ_COUNTRY     "EX"
 set_var EASYRSA_REQ_PROVINCE    "Example area"
@@ -297,8 +297,8 @@ set_var EASYRSA_CA_EXPIRE       9130
 set_var EASYRSA_CERT_EXPIRE     3650
 set_var EASYRSA_NS_SUPPORT      "no"
 set_var EASYRSA_NS_COMMENT      "Example CERTIFICATE AUTHORITY"
-set_var EASYRSA_EXT_DIR         "/usr/local/share/easyrsa/x509-types"
-set_var EASYRSA_SSL_CONF        "/usr/local/share/easyrsa/openssl-easyrsa.cnf"
+set_var EASYRSA_EXT_DIR         "/usr/local/share/easy-rsa/x509-types"
+set_var EASYRSA_SSL_CONF        "/usr/local/share/easy-rsa/openssl-easyrsa.cnf"
 set_var EASYRSA_DIGEST          "sha256"
 EOF
 fi

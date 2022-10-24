@@ -18,7 +18,7 @@ source "$OPENVPN/ovpn_env.sh"
 nopass=$1
 
 # Provides a sufficient warning before erasing pre-existing files
-easyrsa init-pki
+echo "yes" | easyrsa init-pki
 
 # CA always has a password for protection in event server is compromised. The
 # password is only needed to sign client/server certificates.  No password is
@@ -26,7 +26,7 @@ easyrsa init-pki
 easyrsa build-ca $nopass
 
 easyrsa gen-dh
-openvpn --genkey --secret $OPENVPN/pki/ta.key
+openvpn --genkey secret $EASYRSA_PKI/ta.key
 
 # For a server key with a password, manually init; this is autopilot
 easyrsa build-server-full "$OVPN_CN" nopass
@@ -34,4 +34,4 @@ easyrsa build-server-full "$OVPN_CN" nopass
 # Init Certificate Revocation List
 easyrsa gen-crl
 # copy crl to $OPENVPN where user nobody can read it
-cp $OPENVPN/pki/crl.pem $OPENVPN/crl.pem && chmod 644 $OPENVPN/crl.pem
+cp $EASYRSA_PKI/crl.pem $OPENVPN/crl.pem && chmod 644 $OPENVPN/crl.pem

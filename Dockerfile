@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 LABEL maintainer "Peter Rosell <peter.rosell@gmail.com>"
 
@@ -26,15 +26,6 @@ RUN . /etc/lsb-release && \
 
 ##### install openvpn and yubico pam module
 
-# Patch base image to allow installation of openvpn.
-# postinst scripts in deb package don't work inside ubuntu 18 base image
-RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d &&\
-    echo "#!/bin/sh\nexit 0" > /usr/sbin/invoke-rc.d &&\
-    echo "#!/bin/sh\nexit 0" > /usr/sbin/update-rc.d &&\
-    echo "#!/bin/sh\nexit 0" > /usr/sbin/systemctl &&\
-    chmod +x /usr/sbin/systemctl &&\
-    ln -s /systemd /sbin/init
-
 # DEBIAN_SCRIPT_DEBUG=true
 RUN . /etc/lsb-release && \
     curl -s https://swupdate.openvpn.net/repos/repo-public.gpg | apt-key add && \
@@ -49,16 +40,16 @@ RUN . /etc/lsb-release && \
 
 ##### install Easy-RSA
 RUN cd /tmp && \
-    curl -sLOf https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.8/EasyRSA-3.0.8.tgz &&\
-    tar -xvzf EasyRSA-3.0.8.tgz &&\
-    mkdir /usr/local/share/easyrsa &&\
-    cp -r EasyRSA-3.0.8/* /usr/local/share/easyrsa &&\
-    ln -s /usr/local/share/easyrsa/easyrsa /usr/local/bin
+    curl -sLOf https://github.com/OpenVPN/easy-rsa/releases/download/v3.1.1/EasyRSA-3.1.1.tgz &&\
+    tar -xvzf EasyRSA-3.1.1.tgz &&\
+    mkdir /usr/local/share/easy-rsa &&\
+    cp -r EasyRSA-3.1.1/* /usr/local/share/easy-rsa &&\
+    ln -s /usr/local/share/easy-rsa/easyrsa /usr/local/bin
 
 # Needed by scripts
 ENV OPENVPN=/etc/openvpn \
-    EASYRSA=/usr/local/share/easyrsa \
-    EASYRSA_PKI=/etc/openvpn/pki \
+    EASYRSA=/usr/local/share/easy-rsa \
+    EASYRSA_PKI=/etc/easy-rsa/pki \
     EASYRSA_VARS_FILE=/etc/openvpn/vars
 
 VOLUME ["/etc/openvpn"]
