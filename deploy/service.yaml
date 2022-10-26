@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: openvpn
+  name: openvpn
+spec:
+  ports:
+  - name: openvpn
+    port: 1194
+    protocol: UDP
+    targetPort: openvpn
+  selector:
+    app: openvpn
+  type: LoadBalancer
+#  loadBalancerIP: 192.168.16.14

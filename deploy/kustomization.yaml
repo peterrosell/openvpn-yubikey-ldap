@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: openvpn
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+configMapGenerator:
+  - name: openvpn-config
+    files:
+      - config/openvpn.conf
+      - config/ovpn_env.sh
+      - config/yubikey_mappings
+  - name: client-config-dir
+    literals:
+      - .keep=""
+secretGenerator:
+  - name: openvpn-pki
+    files:
+      - easy-rsa/pki/ca.crt
+      - easy-rsa/pki/crl.pem
+      - easy-rsa/pki/dh.pem
+      - easy-rsa/pki/ta.key
+      - easy-rsa/pki/issued/example.net.crt
+      - easy-rsa/pki/private/example.net.key

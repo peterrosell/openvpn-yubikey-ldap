@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openvpn
+  labels:
+    app: openvpn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openvpn
+  template:
+    metadata:
+      labels:
+        app: openvpn
+    spec:
+      initContainers:
+      - args:
+        - -w
+        - net.ipv4.ip_forward=1
+        command:
+        - sysctl
+        image: quay.io/peter_rosell/openvpn-yubikey-ldap:2.5.7-1
+        name: enable-ip-forwarding
+        securityContext:
+          privileged: true
+      containers:
+      - name: openvpn
+        image: quay.io/peter_rosell/openvpn-yubikey-ldap:2.5.7-1
+# Use for debugging. uncomment, deploy and exec into the pod. 
+#   run `startopenvpn` to start the server
+#        command: ["sleep", "100000" ]
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 1194
+          name: openvpn
+          protocol: UDP
+        securityContext:
+          readOnlyRootFilesystem: true
+          capabilities:
+            add:
+              - NET_ADMIN
+        volumeMounts:
+        - name: config
+          mountPath: /etc/openvpn
+        - name: client-config-dir
+          mountPath: /etc/openvpn/ccd
+        - name: pki
+          mountPath: /etc/pki
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+        - name: pki
+          secret:
+            secretName: openvpn-pki
+            defaultMode: 0600
+        - name: config
+          configMap:
+            name: openvpn-config
+            defaultMode: 0600
+        - name: client-config-dir
+          configMap:
+            name: client-config-dir
+            defaultMode: 0600
+        - name: tmp
+          emptyDir: {}
