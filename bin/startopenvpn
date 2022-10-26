@@ -35,9 +35,9 @@ fi
 
 conf="$OPENVPN/openvpn.conf"
 
-if [ ! -p /openvpn_log ]; then
-    mkfifo /openvpn_log
+if [ ! -p /dev/shm/openvpn_log ]; then
+    mkfifo /dev/shm/openvpn_log
 fi
-cat /openvpn_log | logmon &
+cat /dev/shm/openvpn_log | logmon &
 
-exec openvpn --config "$conf" | tee /openvpn_log
+exec openvpn --config "$conf" | tee /dev/shm/openvpn_log
