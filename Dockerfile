@@ -6,7 +6,7 @@ LABEL maintainer "Peter Rosell <peter.rosell@gmail.com>"
 RUN . /etc/lsb-release && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        gnupg && \
+        gnupg libssl3 && \
     . /etc/lsb-release && echo "deb http://ppa.launchpad.net/yubico/stable/ubuntu $DISTRIB_CODENAME main" >> /etc/apt/sources.list && \
     echo "deb-src http://ppa.launchpad.net/yubico/stable/ubuntu $DISTRIB_CODENAME main " >> /etc/apt/sources.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 32CBA1A9 && \
