@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 
 LABEL maintainer "Peter Rosell <peter.rosell@gmail.com>"
 
@@ -6,7 +6,7 @@ LABEL maintainer "Peter Rosell <peter.rosell@gmail.com>"
 RUN . /etc/lsb-release && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        gnupg libssl3 && \
+        gnupg && \
     . /etc/lsb-release && echo "deb http://ppa.launchpad.net/yubico/stable/ubuntu $DISTRIB_CODENAME main" >> /etc/apt/sources.list && \
     echo "deb-src http://ppa.launchpad.net/yubico/stable/ubuntu $DISTRIB_CODENAME main " >> /etc/apt/sources.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 32CBA1A9 && \
